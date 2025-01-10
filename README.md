@@ -66,29 +66,29 @@ ShopWorld/
 ## Application Properties
 The application.properties file is located in src/main/resources/. Here's how you should configure it:
 
-# Server Configuration
+#### Server Configuration
 server.port=8080
 
-# Database Configuration (Use your own DB credentials)
+Database Configuration (Use your own DB credentials)
 spring.datasource.url=jdbc:mysql://localhost:3306/shopworld
 spring.datasource.username=root
 spring.datasource.password=root
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
-# Hibernate Configuration
+#### Hibernate Configuration
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
 
-# Spring Security Configuration
+#### Spring Security Configuration
 spring.security.user.name=admin
 spring.security.user.password=admin123
 spring.security.authorities=ROLE_ADMIN
 
-# Logging Configuration
+#### Logging Configuration
 logging.level.org.springframework=INFO
 Make sure to replace the database credentials with your own.
 
-pom.xml
+#### pom.xml
 
 The pom.xml file contains the dependencies and configuration for Maven to build and run the backend application. Below is an example of the essential dependencies included:
 
