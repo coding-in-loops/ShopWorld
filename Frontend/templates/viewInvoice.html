@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+</head>
+<body>
+    <div class="container mx-auto my-5 p-6 border rounded shadow-lg">
+        <h2 class="text-2xl font-semibold mb-5">Invoice</h2>
+
+        <!-- Invoice Header -->
+        <div class="flex justify-between mb-4">
+            <div>
+                <h3 class="font-bold">Billing Information</h3>
+                <p>Name: <span th:text="${invoice.orderRequest.firstName} + ' ' + ${invoice.orderRequest.lastName}"></span></p>
+                <p>Email: <span th:text="${invoice.orderRequest.email}"></span></p>
+                <p>Phone: <span th:text="${invoice.orderRequest.mobileNumber}"></span></p>
+                <p>Address: <span th:text="${invoice.orderRequest.address}"></span></p>
+                <p>City: <span th:text="${invoice.orderRequest.city}"></span></p>
+                <p>State: <span th:text="${invoice.orderRequest.state}"></span></p>
+                <p>Pincode: <span th:text="${invoice.orderRequest.pincode}"></span></p>
+            </div>
+
+            <div>
+                <h3 class="font-bold">Order Details</h3>
+                <p>Order ID: <span th:text="${invoice.orderId}"></span></p>
+                <p>Payment Type: <span th:text="${invoice.paymentType}"></span></p>
+            </div>
+        </div>
+
+        <!-- Product Details Table -->
+        <table class="min-w-full border-collapse mb-5">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="px-4 py-2 text-left">Product</th>
+                    <th class="px-4 py-2 text-left">Quantity</th>
+                    <th class="px-4 py-2 text-left">Price</th>
+                    <th class="px-4 py-2 text-left">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="productOrder : ${invoice.productOrders}">
+                    <td class="border px-4 py-2" th:text="${productOrder.product.title}"></td>
+                    <td class="border px-4 py-2" th:text="${productOrder.quantity}"></td>
+                    <td class="border px-4 py-2" th:text="${productOrder.price}"></td>
+                    <td class="border px-4 py-2" th:text="${productOrder.price * productOrder.quantity}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Total Amount -->
+        <div class="flex justify-between mt-4">
+            <p class="font-bold">Total Amount</p>
+            <p class="text-xl" th:text="${invoice.totalAmount}"></p>
+        </div>
+
+        <div class="mt-5 text-center">
+            <a href="/" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

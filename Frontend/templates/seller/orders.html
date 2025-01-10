@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card-sh {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .table {
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .text-success, .text-danger {
+            font-size: 1.2rem;
+        }
+        .container-fluid {
+            padding-top: 50px;
+        }
+        .search-input {
+            border-radius: 5px;
+            padding: 8px;
+        }
+        .search-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .back-link {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination .page-item {
+            margin: 0 5px;
+        }
+        @media (max-width: 767px) {
+            .table th, .table td {
+                font-size: 0.85rem;
+                display: block;
+                text-align: left;
+            }
+            .table th {
+                display: none;
+            }
+            .table td {
+                border: none;
+                padding: 10px;
+                position: relative;
+            }
+            .table td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                position: absolute;
+                left: 10px;
+                top: 10px;
+                font-size: 0.9rem;
+            }
+            .btn-primary, .btn-secondary {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+            .pagination {
+                font-size: 0.9rem;
+            }
+            .search-input {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section>
+        <div class="container-fluid mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-10 col-12">
+                    <p class="text-center display-6">Order Management</p>
+                    <hr>
+                    <a href="/seller/" class="text-decoration-none back-link"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+
+                    <!-- Success Message -->
+                    <th:block th:if="${session.successMessage}">
+                        <div class="alert alert-success text-center">[[${session.successMessage}]]</div>
+                        <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
+                    </th:block>
+
+                    <!-- Error Message -->
+                    <th:block th:if="${session.errorMessage}">
+                        <div class="alert alert-danger text-center">[[${session.errorMessage}]]</div>
+                        <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
+                    </th:block>
+
+                    <!-- Search Order Form -->
+                    <div class="search-container">
+                        <form action="/seller/search-order" method="get" class="row g-3">
+                            <div class="col-md-8 col-8">
+                                <input type="text" class="form-control search-input" name="orderId" placeholder="Enter Order ID" aria-label="Order ID">
+                            </div>
+                            <div class="col-md-4 col-4">
+                                <button class="btn btn-primary w-100"><i class="fas fa-search"></i> Search</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Orders Table -->
+                    <div class="table-responsive mt-3">
+                        <table class="table table-hover table-bordered text-center card-sh">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th scope="col">Order ID</th>
+                                    <th scope="col">Deliver Details</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Product Details</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Action</th>
+                                    <th scope="col">Invoice</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Single Order Details (if searched) -->
+                                <th:block th:if="${search}">
+                                    <th:block th:if="${orderDtls != null}">
+                                        <tr>
+                                            <td data-label="Order ID">[[${orderDtls.orderId}]]</td>
+                                            <td data-label="Deliver Details">
+                                                <p>Name: [[${orderDtls.orderAddress.firstName+' '+orderDtls.orderAddress.lastName}]]<br>
+                                                Email: [[${orderDtls.orderAddress.email}]]<br>
+                                                Mobile: [[${orderDtls.orderAddress.mobileNumber}]]<br>
+                                                Address: [[${orderDtls.orderAddress.address}]]<br>
+                                                City: [[${orderDtls.orderAddress.city}]]<br>
+                                                State: [[${orderDtls.orderAddress.state}]], [[${orderDtls.orderAddress.pincode}]]
+                                                </p>
+                                            </td>
+                                            <td data-label="Date">[[${orderDtls.orderDate}]]</td>
+                                            <td data-label="Product Details">[[${orderDtls.product.title}]]</td>
+                                            <td data-label="Price">Qty: [[${orderDtls.quantity}]]<br>Total: $[[${orderDtls.quantity * orderDtls.price}]]</td>
+                                            <td data-label="Status"><span class="badge bg-info">[[${orderDtls.status}]]</span></td>
+                                            <td data-label="Action">
+                                                <form action="/seller/update-order-status" method="post">
+                                                    <div class="input-group">
+                                                        <select class="form-select" name="st">
+                                                            <option>--Select Status--</option>
+                                                            <option value="1">In Progress</option>
+                                                            <option value="2">Order Received</option>
+                                                            <option value="3">Product Packed</option>
+                                                            <option value="4">Out for Delivery</option>
+                                                            <option value="5">Delivered</option>
+                                                            <option value="6">Cancelled</option>
+                                                        </select>
+                                                        <input type="hidden" name="id" th:value="${orderDtls.id}">
+                                                        <button class="btn btn-success" type="submit" th:disabled="${orderDtls.status=='Cancelled' || orderDtls.status=='Delivered'}">
+                                                            Update
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </td>
+                                            
+                                        </tr>
+                                    </th:block>
+                                    <th:block th:unless="${orderDtls!=null}">
+                                        <tr><td colspan="8" class="text-danger">[[${errorMessage}]]</td></tr>
+                                    </th:block>
+                                </th:block>
+
+                                <!-- All Orders List -->
+                                <th:block th:unless="${search}">
+                                    <tr th:each="o : ${orders}">
+                                        <td data-label="Order ID">[[${o.orderId}]]</td>
+                                        <td data-label="Deliver Details">
+                                            <p>Name: [[${o.orderAddress.firstName+' '+o.orderAddress.lastName}]]<br>
+                                            Email: [[${o.orderAddress.email}]]<br>
+                                            Mobile: [[${o.orderAddress.mobileNumber}]]<br>
+                                            Address: [[${o.orderAddress.address}]]<br>
+                                            City: [[${o.orderAddress.city}]]<br>
+                                            State: [[${o.orderAddress.state}]], [[${o.orderAddress.pincode}]]</p>
+                                        </td>
+                                        <td data-label="Date">[[${o.orderDate}]]</td>
+                                        <td data-label="Product Details">[[${o.product.title}]]</td>
+                                        <td data-label="Price">Qty: [[${o.quantity}]]<br>Total: $[[${o.quantity * o.price}]]</td>
+                                        <td data-label="Status"><span class="badge bg-info">[[${o.status}]]</span></td>
+                                        <td data-label="Action">
+										    <form action="/seller/update-order-status" method="post" onsubmit="return validateForm()">
+										        <div class="input-group flex-column">
+										            <select class="form-select mb-2" name="st">
+										                <option value="">--Select Status--</option>
+										                <option value="1">In Progress</option>
+										                <option value="2">Order Received</option>
+										                <option value="3">Product Packed</option>
+										                <option value="4">Out for Delivery</option>
+										                <option value="5">Delivered</option>
+										                <option value="6">Cancelled</option>
+										            </select>
+										            <input type="hidden" name="id" th:value="${o.id}">
+										            <button class="btn btn-success" type="submit" th:disabled="${o.status=='Cancelled' || o.status=='Delivered'}">
+										                Update
+										            </button>
+										        </div>
+										    </form>
+										</td>
+
+                                        <td data-label="Invoice">
+										    <button class="btn btn-secondary"
+										            th:data-order-id="${o.orderId}"
+										            th:data-customer-name="${o.orderAddress.firstName + ' ' + o.orderAddress.lastName}"
+										            th:data-email="${o.orderAddress.email}"
+										            th:data-phone="${o.orderAddress.mobileNumber}"
+										            th:data-address="${o.orderAddress.address}"
+										            th:data-product="${o.product.title}"
+										            th:data-quantity="${o.quantity}"
+										            th:data-price="${o.price}"
+										            th:data-total="${o.quantity * o.price}"
+										            onclick="downloadInvoice(this)">
+										        <i class="fas fa-download"></i> Download Invoice
+										    </button>
+										</td>
+
+                                    </tr>
+                                </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    <th:block th:if="${!search}">
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <nav>
+                                    <ul class="pagination">
+                                        <li class="page-item" th:classappend="${pageNo == 0} ? 'disabled' : ''">
+                                            <a class="page-link" th:href="@{'/seller/orders?'(pageNo=${0})}" aria-label="First">
+                                                <span aria-hidden="true">&laquo;&laquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item" th:classappend="${pageNo == 0} ? 'disabled' : ''">
+                                            <a class="page-link" th:href="@{'/seller/orders?'(pageNo=${pageNo - 1})}" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                        <th:block th:each="i : ${#numbers.sequence(0, totalPages-1)}">
+                                            <li class="page-item" th:classappend="${i == pageNo} ? 'active' : ''">
+                                                <a class="page-link" th:href="@{'/seller/orders?'(pageNo=${i})}">[[${i + 1}]]</a>
+                                            </li>
+                                        </th:block>
+                                        <li class="page-item" th:classappend="${pageNo == totalPages - 1} ? 'disabled' : ''">
+                                            <a class="page-link" th:href="@{'/seller/orders?'(pageNo=${pageNo + 1})}" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item" th:classappend="${pageNo == totalPages - 1} ? 'disabled' : ''">
+                                            <a class="page-link" th:href="@{'/seller/orders?'(pageNo=${totalPages - 1})}" aria-label="Last">
+                                                <span aria-hidden="true">&raquo;&raquo;</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Script for generating invoice PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+    function downloadInvoice(button) {
+        const orderDetails = {
+            orderId: button.getAttribute('data-order-id'),
+            customerName: button.getAttribute('data-customer-name'),
+            email: button.getAttribute('data-email'),
+            phone: button.getAttribute('data-phone'),
+            address: button.getAttribute('data-address'),
+            product: button.getAttribute('data-product'),
+            quantity: button.getAttribute('data-quantity'),
+            price: button.getAttribute('data-price'),
+            total: button.getAttribute('data-total')
+        };
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+
+        // Add content to the PDF
+        doc.text('Invoice', 14, 20);
+        doc.text(`Order ID: ${orderDetails.orderId}`, 14, 30);
+        doc.text(`Customer: ${orderDetails.customerName}`, 14, 40);
+        doc.text(`Email: ${orderDetails.email}`, 14, 50);
+        doc.text(`Phone: ${orderDetails.phone}`, 14, 60);
+        doc.text(`Address: ${orderDetails.address}`, 14, 70);
+        doc.text(`Product: ${orderDetails.product}`, 14, 80);
+        doc.text(`Quantity: ${orderDetails.quantity}`, 14, 90);
+        doc.text(`Price per Item: $${orderDetails.price}`, 14, 100);
+        doc.text(`Total: $${orderDetails.total}`, 14, 110);
+
+        // Save the PDF
+        doc.save(`Invoice_${orderDetails.orderId}.pdf`);
+    }
+    </script>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
